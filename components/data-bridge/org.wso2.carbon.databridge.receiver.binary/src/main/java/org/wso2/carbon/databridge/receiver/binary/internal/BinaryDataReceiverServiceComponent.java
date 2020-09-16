@@ -20,11 +20,9 @@ package org.wso2.carbon.databridge.receiver.binary.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
+import org.wso2.carbon.core.ServerStartupObserver;
 import org.wso2.carbon.databridge.core.DataBridgeReceiverService;
-import org.wso2.carbon.databridge.core.exception.DataBridgeException;
 import org.wso2.carbon.databridge.receiver.binary.conf.BinaryDataReceiverConfiguration;
-
-import java.io.IOException;
 
 /**
  * @scr.component name="binaryDataReceiver.component" immediate="true"
@@ -51,13 +49,10 @@ public class BinaryDataReceiverServiceComponent {
         }
         binaryDataReceiver = new BinaryDataReceiver(new BinaryDataReceiverConfiguration(dataBridgeReceiverService
                 .getInitialConfig()), dataBridgeReceiverService);
-        try {
-            binaryDataReceiver.start();
-        } catch (IOException e) {
-            log.error("Error while starting binary data receiver ", e);
-        } catch (DataBridgeException e) {
-            log.error("Error while starting binary data receiver ", e);
-        }
+
+        context.getBundleContext().registerService(ServerStartupObserver.class.getName(), binaryDataReceiver, null);
+
+        log.info("Binary Data Receiver server activated");
     }
 
     protected void deactivate(ComponentContext context) {
